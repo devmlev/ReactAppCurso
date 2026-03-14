@@ -58,14 +58,14 @@ jobs:
 
       # ── Artifacts ─────────────────────────────────────────────
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-dist
           path: reactappcurso.client/dist
           retention-days: 7
 
       - name: Upload backend artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: backend-publish
           path: ./publish
