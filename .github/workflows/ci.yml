@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:    
+
+jobs:
+  build-test-artifact:
+    name: Build, Test and Artifact
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: reactappcurso.client/package-lock.json
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      # ── Frontend ──────────────────────────────────────────────
+      - name: Install frontend dependencies
+        working-directory: reactappcurso.client
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: reactappcurso.client
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: reactappcurso.client
+        run: npm run build
+
+      # ── Backend ───────────────────────────────────────────────
+      - name: Restore .NET dependencies
+        run: dotnet restore ReactAppCurso.slnx
+
+      - name: Build .NET solution
+        run: dotnet build ReactAppCurso.slnx --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test ReactAppCurso.Server.Tests/ReactAppCurso.Server.Tests.csproj --no-build --configuration Release --verbosity normal
+
+      - name: Publish .NET application
+        run: dotnet publish ReactAppCurso.Server/ReactAppCurso.Server.csproj --no-build --configuration Release --output ./publish
+
+      # ── Artifacts ─────────────────────────────────────────────
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: reactappcurso.client/dist
+          retention-days: 7
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: ./publish
+          retention-days: 7
