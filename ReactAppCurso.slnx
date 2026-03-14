@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="reactappcurso.client/reactappcurso.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="ReactAppCurso.Server.Tests/ReactAppCurso.Server.Tests.csproj" />
+  <Project Path="ReactAppCurso.Server/ReactAppCurso.Server.csproj" />
+</Solution>
